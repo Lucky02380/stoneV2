@@ -12,7 +12,8 @@ class Game{
         $this->Conn = $Conn;
     }
 
-    //create user with score 0, can also be done using default while altering db
+    //create user with score 0
+    //NOTE: can also be done using default using alter db
     public function createUserInitialScore($userid,$username){
         $val = $this->Conn->query("insert into ".$this->table." (userid,score,username) values('".$userid."','0','".$username."')");
         return $val;
@@ -24,6 +25,7 @@ class Game{
         return $res;
     }
     
+    //get user game information
     public function getGameInfo($userid){
         $res = $this->Conn->query("select * from ".$this->table." where userid = '".$userid."'");
         if($res->num_rows > 0){
@@ -33,6 +35,7 @@ class Game{
         else return null;
     }
 
+    //function user plays
     public function updatePlays($userid,$plays){
         $res = true;
         for($i=0; $i<count($plays); $i++){
@@ -46,10 +49,7 @@ class Game{
         return $val;
     }
 
-    // public function updatePlayss($userid, $i){
-
-    // }
-
+    // function to get user top plays
     public function getTopPlays($userid){
         $res = $this->Conn->query("select * from plays where userid = '".$userid."'");
         if($res->num_rows > 0){
@@ -59,16 +59,19 @@ class Game{
         else return null;
     }
 
+    // update user session score
     public function updateTempScore($userid,$score){
         $val = $this->Conn->query("update plays set tempScore  = ".$score." where userid = ".$userid."");
         return $val;
     }
 
+    //iniatilise user plays
     public function initaliseUserPlays($userid){
         $val = $this->Conn->query("insert into plays (userid,score1,score2,score3,score4,score5,tempScore) values('".$userid."','0','0','0','0','0','0')");
         return $val;
     }
 
+    //get leaderboard
     public function getLeaderboard(){
         $val = $this->Conn->query("select username,score from ".$this->table." where updated_at >= date_sub(curdate(),interval 30 day) order by score desc limit 3");
         if($val->num_rows > 0){
@@ -76,7 +79,6 @@ class Game{
             while($row = $val->fetch_assoc()){
                 $players[$row['username']] = $row['score'];
             }
-            // var_dump($val);
             return $players;
         }
         return null;

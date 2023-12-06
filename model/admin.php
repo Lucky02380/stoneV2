@@ -32,6 +32,7 @@ class Admin{
         return $res;
     }
 
+    //function to signup another admin
     public function signupAdmin($username, $password){
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
         $res = $this->Conn->query("insert into admins (username,password) values('$username','$hashedPassword')");

@@ -18,7 +18,7 @@ class authController{
     
         $this->user = $user;
         $this->game = $game;
-        //this should be here, move this to functions
+        //NOTE: can be further improved with code readability, Hint: this should be here, move this to functions
         $this->username = $this->isUsernameFormatValid($username) === 1 ? $username :"";
         $this->password = $this->ispasswordFormatValid($password) === 1 ? $password :"";
         $this->usernameFormat = strlen($this->username) == 0 ? 0 : 1;
@@ -43,10 +43,6 @@ class authController{
                     $_SESSION['username'] = $this->username;
                     $_SESSION['userid'] = $this->user->getUserInfo($this->username)['userid']; 
                     $data['loginStatus'] = 'You Logged in Successfully';
-                    // echo $_SESSION['username'];
-                    // die;
-                    
-                    //get the user's top five plays and leaderboard
                     $this->setPlaysAndLeaderboard();
 
                 }
@@ -56,10 +52,11 @@ class authController{
             }
         }
         
-        // Load view and pass data
+        
         $this->loadView('../view/login.php', $data);
     }
 
+    //get the user's top five plays and leaderboard
     public function setPlaysAndLeaderboard(){
         $row = $this->game->getTopPlays($_SESSION['userid']);
         $res = [];
@@ -77,18 +74,20 @@ class authController{
         $_SESSION['leaderBoard'] = $res;
     }
 
+    //function to logout user
     public function processLogout(){
         session_destroy();
         $data['status'] = 'Logged out successfully';
         $this->loadView('../view/login.php',$data);
     }
 
+    // Load view and pass data
     public function loadView($viewFile, $data){
         require_once $viewFile;
     }
 
    
-
+    //function to validate username format
     public function isUsernameFormatValid($username){
         if(strlen($username) <= 2 || strlen($username) > 20) return 0; //username not valid
         for($i= 0;$i<strlen($username);$i++){
@@ -100,6 +99,7 @@ class authController{
         return 1;
     }
 
+    //function to validate password format   
     public function ispasswordFormatValid($password){
         if(strlen($password) <= 0 || strlen($password) > 10) return 0; //password size not valid
         else return 1; 
@@ -113,13 +113,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $username = isset($_POST['username']) ? $_POST['username'] : '';
     $password = isset($_POST['password']) ? $_POST['password'] : '';
 
-    // Process the form data (in a real application, you would perform validation, database operations, etc.
-    // echo "Username: $username<br>";
-    // echo "Password: $password";
-
-    
-
-    // $user = new User($Conn);
     $auth = new authController(new User($Conn), new Game($Conn), $username, $password);
     if(isset($_POST["login"])){
         $auth->processLogin();

@@ -26,18 +26,18 @@ class gameController{
         
     }
 
+    //function to find max score of a user
     public function findMaxScore() {
         $gameInfo = $this->game->getGameInfo($this->userid);
         if($gameInfo){
             $this->maxScore = $gameInfo['score'];
         }
-        else $this->game->createUserInitialScore($this->userid,$this->username);
+        else $this->game->createUserInitialScore($this->userid,$this->username);  //if user haven't played any game yet, initalise user with score 0
     }
 
+    //function to generate winner of current game
     public function generateWinner($userChoice, $mode){
-        
-        // $choices = ['rock', 'paper', 'scissors'];
-        // $computerChoice = $choices[array_rand($choices)];
+
         $computerChoice = $this->gameMode($userChoice,$mode);
         $data['computerChoice'] = $computerChoice;
         $score=0;
@@ -55,12 +55,13 @@ class gameController{
         $_SESSION['curScore'] = $this->curScore;
 
         $this->updateUserScore();
-        // echo "trace1";
-        // $plays = $this->updateUserPlays($this->curScore);
+        
+        //update user current session score
         $this->game->updateTempScore($this->userid,$this->curScore);
+
         $players = $this->makeLeaderboard();
 
-        //custom sort of players
+        //custom sort for players
         function sortPlayers($a, $b){
             if ($a == $b) {
                 return 0;
@@ -73,7 +74,6 @@ class gameController{
         }
         else $players[$this->username] = (int)$_SESSION['curScore'];
         
-        // var_dump($players);
         uasort($players,'sortPlayers');
         $players = array_slice($players,0,3);
         $_SESSION['leaderBoard'] = $players;
@@ -86,6 +86,7 @@ class gameController{
             return $choices[array_rand($choices)];
         }
         else{ //hard mode win:lose = 30:70
+            //NOTE: Can be further optimised in terms of space
             if($userChoice === $choices[0]){
                 $newChoices = ['scissors','scissors','scissors','paper','paper','paper','paper','paper','paper','paper'];
                 return $newChoices[array_rand($newChoices)];
@@ -101,39 +102,18 @@ class gameController{
         }
     }
 
+    //function to update user score
     public function updateUserScore(){
         if($this->curScore > $this->maxScore){
             $this->game->updateUserScore($this->userid,$this->curScore);
         }
     }
 
+    //function to get leaderboard
     public function makeLeaderboard(){
         $res = $this->game->getLeaderboard();
         return $res;
     }
-
-    // public function updateUserPlays($score){
-        
-
-    //     $res = $this->game->getTopPlays($this->userid);
-
-    //     for($i=1; $i<=5; $i++){
-    //         $plays["score".$i] = (int)($res['score'.$i]);
-    //     }
-        
-    //     // if($score > $plays["score1"]){
-    //     //     $plays[score]
-    //     // }
-    //     for($i=1; $i<=5; $i++){
-    //         if($score > $plays["score".$i]){
-    //             //update in dp
-    //             break;
-    //         }
-    //     }
-
-    // }
-
-    
 
 };
 

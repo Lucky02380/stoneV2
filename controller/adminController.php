@@ -6,7 +6,6 @@ require_once("../config/db.php");
 require_once("../model/user.php");
 require_once("../model/game.php");
 require_once("../model/admin.php");
-require_once("../controller/authController.php");
 
 class adminController{
 
@@ -17,23 +16,35 @@ class adminController{
         $this->admin = $admin;
     }
 
+    // function to login admin
     public function processLogin($username,$password){
-        if($this->admin->isAdminAvailable($username) === 0) $data['InvalidAdmin'] = 'Admin not found, Invalid Admin';
-        else {
-            if($this->admin->login($username,$password) == 1) {
-                $_SESSION['admin'] = true;
-                $_SESSION['username'] = $username;
-                $data['loginStatus'] = 'You Logged in Successfully';
-
-            }
+        $usernameFormat = $this->isUsernameFormatValid($username);
+        $passwordFormat = $this->ispasswordFormatValid($password);
+        if($usernameFormat === 0){
+            $data['AdminnameFormat'] = 'Adminname Format Invalid';
+        }
+        if($passwordFormat === 0){
+            $data['AdminPassFormat'] = 'AdminPass Format Invalid';
+        }
+        if($usernameFormat === 1 && $passwordFormat === 1){
+            if($this->admin->isAdminAvailable($username) === 0) $data['InvalidAdmin'] = 'Admin not found, Invalid Admin';
             else {
-                $data['loginStatus'] = 'Unable to Login, Incorrect Password';
+                if($this->admin->login($username,$password) == 1) {
+                    $_SESSION['admin'] = true;
+                    $_SESSION['username'] = $username;
+                    $data['loginStatus'] = 'You Logged in Successfully';
+
+                }
+                else {
+                    $data['loginStatus'] = 'Unable to Login, Incorrect Password';
+                }
             }
         }
 
         require_once '../view/adminLogin.php';
     }
 
+    //function to signup a user
     public function processSignupUser($username, $password){
         
         //like this \\
@@ -61,6 +72,7 @@ class adminController{
         
     }
 
+    //function to validate username format
     public function isUsernameFormatValid($username){
         if(strlen($username) <= 2 || strlen($username) > 20) return 0; //username not valid
         for($i= 0;$i<strlen($username);$i++){
@@ -72,11 +84,13 @@ class adminController{
         return 1;
     }
 
+    //function to validate password format    
     public function ispasswordFormatValid($password){
         if(strlen($password) <= 0 || strlen($password) > 10) return 0; //password size not valid
         else return 1; 
     }
 
+    //function to signup another admin
     public function signUpAdmin($username, $password){
         $usernameFormat = $this->isUsernameFormatValid($username);
         $passwordFormat = $this->ispasswordFormatValid($password);

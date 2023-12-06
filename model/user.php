@@ -3,8 +3,6 @@ session_start();
 class User{
     private $table = "users";
     private $Conn;
-    // public $id;
-    // public $username;
 
     public function __construct($Conn){
         $this->Conn = $Conn;
@@ -17,6 +15,7 @@ class User{
         else return 0;
     }
 
+    //get user information
     public function getUserInfo($username){
         $res = $this->Conn->query("select * from ".$this->table." where username = '".$username."'");
         if($res->num_rows > 0){

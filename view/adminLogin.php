@@ -13,12 +13,13 @@ if (isset($_SESSION['admin'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Admin Login</title>
 </head>
 <body>
-    <h2>Login</h2>
+    <h2>Admin Login</h2>
     <?php 
-        
+        if (isset($data['AdminnameFormat'])) echo $data['AdminnameFormat']; 
+        if (isset($data['AdminPassFormat'])) echo $data['AdminPassFormat'];
         if (isset($data['InvalidAdmin'])) echo $data['InvalidAdmin']; 
         if (isset($data['loginStatus'])) echo $data['loginStatus'];
         // echo "trace1";
@@ -28,6 +29,8 @@ if (isset($_SESSION['admin'])) {
         <label>Admin Password: <input type="password" name="AdminPassword" required></label><br>
         <button type="submit" name="login">Login</button>
     </form>
+
+    <p><a href="/stoneV2/view/login.php">User Login</a></p>
     
 </body>
 </html>
