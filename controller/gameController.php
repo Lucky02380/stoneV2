@@ -67,7 +67,12 @@ class gameController{
             }
             return ($a < $b) ? 1 : -1;
         }
-        $players[$this->username] = (int)$_SESSION['curScore'];
+
+        if(array_key_exists($this->username, $players)){
+            $players[$this->username] = max($players[$this->username],(int)$_SESSION['curScore']);
+        }
+        else $players[$this->username] = (int)$_SESSION['curScore'];
+        
         // var_dump($players);
         uasort($players,'sortPlayers');
         $players = array_slice($players,0,3);
@@ -102,31 +107,33 @@ class gameController{
         }
     }
 
-    public function updateUserPlays($score){
-        
-
-        $res = $this->game->getTopPlays($this->userid);
-
-        for($i=1; $i<=5; $i++){
-            $plays["score".$i] = (int)($res['score'.$i]);
-        }
-        
-        // if($score > $plays["score1"]){
-        //     $plays[score]
-        // }
-        for($i=1; $i<=5; $i++){
-            if($score > $plays["score".$i]){
-                //update in dp
-                break;
-            }
-        }
-
-    }
-
     public function makeLeaderboard(){
         $res = $this->game->getLeaderboard();
         return $res;
     }
+
+    // public function updateUserPlays($score){
+        
+
+    //     $res = $this->game->getTopPlays($this->userid);
+
+    //     for($i=1; $i<=5; $i++){
+    //         $plays["score".$i] = (int)($res['score'.$i]);
+    //     }
+        
+    //     // if($score > $plays["score1"]){
+    //     //     $plays[score]
+    //     // }
+    //     for($i=1; $i<=5; $i++){
+    //         if($score > $plays["score".$i]){
+    //             //update in dp
+    //             break;
+    //         }
+    //     }
+
+    // }
+
+    
 
 };
 
