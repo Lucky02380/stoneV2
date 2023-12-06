@@ -4,8 +4,8 @@ session_start();
 // require_once("./model/user.php");
 // require_once("./controller/userController.php");
 
-if (isset($_SESSION['username'])) {
-    header('Location: /stoneV2/view/home.php');
+if (!isset($_SESSION['admin'])) {
+    header('Location: /stoneV2/view/adminLogin.php');
 }
 
 
@@ -24,14 +24,8 @@ if (isset($_SESSION['username'])) {
 <body>
     <h2>Sign Up</h2>
 
-    <?php 
-        if(isset($data['usernameFormat']))  echo $data['usernameFormat'];
-        if(isset($data['passwordFormat']))  echo $data['passwordFormat'];
-        if(isset($data['duplicateUser']))  echo $data['duplicateUser'];
-        if(isset($data['signupStatus']))  echo $data['signupStatus'];
-
-    ?>
-    <form action="/stoneV2/controller/authController.php" method="POST">
+    
+    <form action="/stoneV2/controller/adminController.php" method="POST">
         <label>Username: <input type="text" name="username" required></label><br>
         <label>Password: <input type="password" name="password" required></label><br>
         <button type="submit" name="signup">Sign Up</button>

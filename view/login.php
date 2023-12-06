@@ -28,6 +28,7 @@ if (isset($_SESSION['username'])) {
         <button type="submit" name="login">Login</button>
     </form>
     
+    <p><a href="/stoneV2/view/adminLogin.php">Admin Login</a></p>
     <p>Don't have an account? <a href="/stoneV2/view/signup.php">Sign up</a></p>
     <!-- <p><button type="submit" name="s">Login</button></p> -->
     <!-- <p> <a href="view/signup.php">Sign up</a></p> -->

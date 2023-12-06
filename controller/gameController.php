@@ -1,5 +1,10 @@
 <?php 
 session_start();
+
+session_start();
+if (isset($_SESSION['admin'])) {
+    header('Location: /stoneV2/view/adminHome.php');
+}
 require_once("../config/db.php");
 require_once("../model/game.php");
 
@@ -63,9 +68,10 @@ class gameController{
             return ($a < $b) ? 1 : -1;
         }
         $players[$this->username] = (int)$_SESSION['curScore'];
+        // var_dump($players);
         uasort($players,'sortPlayers');
-        $players = array_slice($players,0,2);
-
+        $players = array_slice($players,0,3);
+        $_SESSION['leaderBoard'] = $players;
         require_once '../view/home.php';
     }
 

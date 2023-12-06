@@ -27,36 +27,6 @@ class authController{
         
     }
 
-    public function processSignup(){
-        
-        //like this \\
-        // $this->passwordFormat = $this->ispasswordFormatValid($password);
-        // if ($this->passwordFormat) {
-        //     $this->password = $password;
-        // }
-        
-        if($this->usernameFormat === 0){
-            $data['usernameFormat'] = 'Username Format Invalid';
-        }
-        if($this->passwordFormat === 0){
-            $data['passwordFormat'] = 'Password Format Invalid';
-        }
-        if($this->usernameFormat === 1 && $this->passwordFormat === 1){
-            if($this->user->isUserAvailable($this->username) === 1) $data['duplicateUser']  = 'Username Already Exist';
-            else {
-                if($this->user->signup($this->username,$this->password) == 1 ){
-                    $data['signupStatus'] = 'You Signed up Successfully';
-                    $userid = $this->user->getUserInfo($this->username)['userid'];
-                    $this->game->initaliseUserPlays($userid);
-                }
-                else $data['signupStatus'] = 'Unable to signup, Try Again Later';
-            }
-        }
-        
-        // Load view and pass data
-        $this->loadView('../view/signup.php', $data);
-    }
-
     public function processLogin(){
         if($this->usernameFormat === 0){
             $data['usernameFormat'] = 'Username Format Invalid';
@@ -151,9 +121,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     // $user = new User($Conn);
     $auth = new authController(new User($Conn), new Game($Conn), $username, $password);
-    if(isset($_POST["signup"])){
-        $auth->processSignup();
-    }
     if(isset($_POST["login"])){
         $auth->processLogin();
     }
