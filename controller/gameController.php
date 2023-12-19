@@ -1,10 +1,30 @@
 <?php 
-session_start();
 
-session_start();
-if (isset($_SESSION['admin'])) {
-    header('Location: /stoneV2/view/adminHome.php');
+//Type1
+// @session_start(); 
+// if(session_status() !== PHP_SESSION_ACTIVE){
+//     header('Location: /stoneV2/view/login.php');
+// }
+// else{
+//     session_start(); 
+//     if(isset($_SESSION['admin']) && $_SESSION['admin']===1){
+//         header('Location: /stoneV2/view/adminHome.php');
+//     }
+// }
+
+
+//Alternate Solution
+@session_start();
+if(!isset($_SESSION['admin'])){
+    session_destroy();
+    header('Location: /stoneV2/view/login.php');
 }
+else if(isset($_SESSION['admin'])){
+    if($_SESSION['admin']===1){
+        header('Location: /stoneV2/view/adminHome.php');
+    }
+}
+
 require_once("../config/db.php");
 require_once("../model/game.php");
 
@@ -15,24 +35,24 @@ class gameController{
     public $username;
     public $userid;
     public $curScore;
-    public $maxScore;
+    public $minScore;
 
     public function __construct($game){
         $this->game = $game;
         $this->username = $_SESSION['username'];
         $this->curScore = $_SESSION['curScore'];
         $this->userid = $_SESSION['userid'];
-        $this->findMaxScore();
+        $this->findMinScore();
         
     }
 
     //function to find max score of a user
-    public function findMaxScore() {
+    public function findMinScore() {
         $gameInfo = $this->game->getGameInfo($this->userid);
         if($gameInfo){
-            $this->maxScore = $gameInfo['score'];
+            $this->minScore = $gameInfo['score'];
         }
-        else $this->game->createUserInitialScore($this->userid,$this->username);  //if user haven't played any game yet, initalise user with score 0
+        else $this->game->createUserInitialScore($this->userid);  //if user haven't played any game yet, initalise user with score 0
     }
 
     //function to generate winner of current game
@@ -57,7 +77,15 @@ class gameController{
         $this->updateUserScore();
         
         //update user current session score
-        $this->game->updateTempScore($this->userid,$this->curScore);
+        if(isset($_SESSION['minScore']) && $_SESSION['minScore'] < $this->curScore){
+            $this->game->updateTempScore($this->userid,$this->curScore);
+        }
+        
+        
+        //top plays update locally
+        $this->updateUserPlaysLocally();
+
+
 
         $players = $this->makeLeaderboard();
 
@@ -86,27 +114,46 @@ class gameController{
             return $choices[array_rand($choices)];
         }
         else{ //hard mode win:lose = 30:70
-            //NOTE: Can be further optimised in terms of space
+            $win = 10; //win = 1-100%
+            $newChoice = rand(1,100);
             if($userChoice === $choices[0]){
-                $newChoices = ['scissors','scissors','scissors','paper','paper','paper','paper','paper','paper','paper'];
-                return $newChoices[array_rand($newChoices)];
+                if($newChoice <= $win) return 'scissors';
+                return 'paper'; 
             }
             else if($userChoice === $choices[1]){
-                $newChoices = ['rock','rock','rock','scissors','scissors','scissors','scissors','scissors','scissors','scissors'];
-                return $newChoices[array_rand($newChoices)];
+                if($newChoice <= $win) return 'rock';
+                return 'scissors';
             }
             else{
-                $newChoices = ['paper','paper','paper','rock','rock','rock','rock','rock','rock','rock'];
-                return $newChoices[array_rand($newChoices)];
+                if($newChoice <= $win) return 'paper';
+                return 'rock';
             }
         }
     }
 
     //function to update user score
     public function updateUserScore(){
-        if($this->curScore > $this->maxScore){
+        if($this->curScore > $this->minScore){
             $this->game->updateUserScore($this->userid,$this->curScore);
         }
+    }
+
+
+    //function to update user plays locally
+    public function updateUserPlaysLocally(){
+        $copyPlays = $_SESSION['plays'];
+        array_push($copyPlays,(int)$_SESSION['curScore']);
+        $copyPlays = array_unique($copyPlays);
+        rsort($copyPlays);
+        $index = 5;
+        for ($i = 0; $i < count($copyPlays); $i++) {
+            if ($copyPlays[$i] == 0) {
+                $index = $i;
+                break;
+            }
+        }
+        $copyPlays = array_slice($copyPlays, 0, min(5,$index));
+        $_SESSION['copyPlays'] = $copyPlays;
     }
 
     //function to get leaderboard
@@ -114,6 +161,8 @@ class gameController{
         $res = $this->game->getLeaderboard();
         return $res;
     }
+
+
 
 };
 

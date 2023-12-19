@@ -1,21 +1,40 @@
 <?php
-session_start();
-// echo var_dump($_SESSION);
-// echo $_SESSION['username'];
-if(!isset($_SESSION['username'])){
-    header('Location: /stoneV2/view/signup.php');
+
+//Type1
+// @session_start(); 
+// if(session_status() !== PHP_SESSION_ACTIVE){
+//     header('Location: /stoneV2/view/login.php');
+// }
+// else{
+//     @session_start(); 
+//     if(isset($_SESSION['admin']) && $_SESSION['admin'] === 1){
+//         header('Location: /stoneV2/view/adminHome.php');
+//     }
+// }
+
+//Alternate Solution
+@session_start();
+if(!isset($_SESSION['admin'])){
+    session_destroy();
+    header('Location: /stoneV2/view/login.php');
 }
+else if(isset($_SESSION['admin'])){
+    if($_SESSION['admin']===1){
+        header('Location: /stoneV2/view/adminHome.php');
+    }
+}
+
+
+// var_dump($_SESSION['admin']);
+
 $username = $_SESSION['username'];
 $userid = $_SESSION['userid'];
-$plays = $_SESSION['plays'];
-$copyPlays = $plays;
-// var_dump($copyPlays);
-array_push($copyPlays,(int)$_SESSION['curScore']);
-rsort($copyPlays);
-$copyPlays = array_slice($copyPlays, 0, 5);
 
+//top plays
+$copyPlays = $_SESSION['copyPlays'];
+
+//leaderboard
 $players = $_SESSION['leaderBoard'];
-
 ?>
 
 
@@ -72,7 +91,7 @@ $players = $_SESSION['leaderBoard'];
 
     
 
-    <h3>Your Top 5 Plays:</h3>
+    <h3>Your Top Plays:</h3>
     <?php 
         $i=1;
         foreach ($copyPlays as $play){
